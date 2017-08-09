@@ -6,7 +6,7 @@ ws = Webshot::Screenshot.instance
 
 ws.start_session do
   visit 'private/uploads/grabConsole.html'
-  fill_in 'flag', with: 'password'
+  fill_in 'da flag field', with: 'MCA{8Fo4Mcg1vp}'
   width = 1920
   height = 1080
   path = 'anotherTest.png'
