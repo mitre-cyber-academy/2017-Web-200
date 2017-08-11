@@ -34,12 +34,10 @@ end
 
 post '/getScreenshot' do
   id = params[:id]
-  require 'Webshot'
+  require 'webshot'
   require_relative 'myFinders'
   require_relative 'myActions'
   ws = Webshot::Screenshot.instance
-
-# TODO required modification to capybara/node/finders.rb and capybara/node/actions.rb possibly make a subclass and override methods
 
   if File.exists? "private/uploads/#{id.to_s}.html"
     ws.start_session do

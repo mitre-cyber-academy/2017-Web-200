@@ -1,0 +1,9 @@
+version: '2'
+services:
+  web:
+    build: .
+    ports:
+     - "80:4567"
+    volumes:
+     - .:/code
+    restart: unless-stopped
