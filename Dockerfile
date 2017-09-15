@@ -1,10 +1,22 @@
-FROM ruby:2.4.1-onbuild
+FROM phusion/passenger-ruby23:latest
+
+# Set correct environment variables.
+ENV HOME /root
+
+# Enable nginx and Passenger
+RUN rm -f /etc/service/nginx/down
+
+# Remove the default site
+RUN rm /etc/nginx/sites-enabled/default
+
+# Create virtual host
+ADD docker/vhost.conf /etc/nginx/sites-enabled/app.conf
 
 RUN apt-get update \
              && apt-get install -y --no-install-recommends \
                     ca-certificates \
                     bzip2 \
-                    libfontconfig \
+                    libfontconfig libmagickwand-dev imagemagick \
              && apt-get clean \
              && rm -rf /var/lib/apt/lists/*
 
@@ -27,19 +39,30 @@ RUN set -x  \
              && apt-get clean \
              && rm -rf /tmp/* /var/lib/apt/lists/*
 
-COPY server.rb /usr/src/app
+RUN mkdir -p /usr/src/app/{public,private,tmp}
+
+COPY Server.rb /usr/src/app
+COPY config.ru /usr/src/app
 COPY myActions.rb /usr/src/app
 COPY myFinders.rb /usr/src/app
 
-COPY private /usr/src/app
-COPY tmp /usr/src/app
-
-RUN gem install webshot
-
-RUN mkdir -p /usr/src/app
+COPY private /usr/src/app/private
+COPY tmp /usr/src/app/tmp
 
 WORKDIR /usr/src/app
 
+COPY Gemfile .
+
+COPY Gemfile.lock .
+
+RUN bundle install
+
+RUN chown -R app:app /usr/src/app
+
+# Clean up when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 ENV RACK_ENV production
 
-CMD ["ruby", "server.rb"]
+# Use baseimage-docker's init process.
+CMD ["/sbin/my_init"]

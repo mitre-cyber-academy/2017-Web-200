@@ -1,6 +1,8 @@
 require 'sinatra'
 include FileUtils::Verbose
 
+enable :inline_templates
+
 def randomFileName
   ray = ('a'..'z').to_a + (0..9).to_a
   name = ''
